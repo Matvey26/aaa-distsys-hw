@@ -3,7 +3,7 @@ import redis.asyncio as aredis
 
 class UsersByTitleStorage:
     def __init__(self):
-        self._client = aredis.StrictRedis(host='127.0.0.1', port=6379, db=0)
+        self._client = aredis.StrictRedis(host="127.0.0.1", port=6379, db=0)
 
     async def connect(self) -> None:
         await self._client.ping()

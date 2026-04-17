@@ -1,7 +1,7 @@
 import abc
 import asyncio
 import httpx
-from httpx import HTTPStatusError, RequestError, TimeoutException
+from httpx import HTTPStatusError, RequestError
 
 MAX_TRIES = 5
 DELAY = 0.5
@@ -38,9 +38,9 @@ async def do_reliable_request(url: str, observer: ResultsObserver) -> None:
                     raise
                 if attempt == MAX_TRIES:
                     raise
-                await asyncio.sleep(DELAY * 2 ** attempt)
-            except (RequestError, TimeoutError) as e:
+                await asyncio.sleep(DELAY * 2**attempt)
+            except (RequestError, TimeoutError):
                 if attempt == MAX_TRIES:
                     raise
-                await asyncio.sleep(DELAY * 2 ** attempt)
+                await asyncio.sleep(DELAY * 2**attempt)
         #####################

@@ -59,7 +59,9 @@ class ItemStorage:
             INSERT INTO items(item_id, user_id, title, description)
             VALUES($1, $2, $3, $4)
         """
-        data = [(item.item_id, item.user_id, item.title, item.description) for item in items]
+        data = [
+            (item.item_id, item.user_id, item.title, item.description) for item in items
+        ]
         await self._pool.executemany(query, data)
 
     async def find_similar_items(
