@@ -1,6 +1,10 @@
 import abc
-
+import asyncio
 import httpx
+from httpx import HTTPStatusError, RequestError, TimeoutException
+
+MAX_TRIES = 5
+DELAY = 0.5
 
 
 class ResultsObserver(abc.ABC):
@@ -19,12 +23,24 @@ async def do_reliable_request(url: str, observer: ResultsObserver) -> None:
     Все успешно полученные результаты должны регистрироваться с помощью обсёрвера.
     """
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         # YOUR CODE GOES HERE
-        response = await client.get(url)
-        response.raise_for_status()
-        data = response.read()
+        for attempt in range(1, MAX_TRIES + 1):
+            try:
+                response = await client.get(url)
+                response.raise_for_status()
+                data = response.read()
 
-        observer.observe(data)
-        return
+                observer.observe(data)
+                return
+            except HTTPStatusError as e:
+                if 400 <= e.response.status_code < 500:
+                    raise
+                if attempt == MAX_TRIES:
+                    raise
+                await asyncio.sleep(DELAY * 2 ** attempt)
+            except (RequestError, TimeoutError) as e:
+                if attempt == MAX_TRIES:
+                    raise
+                await asyncio.sleep(DELAY * 2 ** attempt)
         #####################

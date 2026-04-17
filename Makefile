@@ -1,5 +1,10 @@
 init:
-	python -m pip install poetry==1.8.2
+	# Это выкидывает ошибку
+    # python -m pip install poetry==1.8.2
+
+	# А на маке проще так:
+	brew install poetry
+
 	poetry install --no-root
 
 ci-test:
